@@ -17,6 +17,18 @@ bot = commands.Bot(command_prefix='!',intents=intents)
 # OpenAI API key setup
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+@bot.command(name='story', help='Tells you a short story')
+async def story(ctx):
+    prompt_msg = ctx.message[7:]
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=generate_story(prompt_msg),
+        temperature=1.1,
+        max_tokens=50
+    )
+    result = response.choices[0].text
+    await ctx.send(result)
+
 
 @bot.command(name='hopo', help='I dare you to try')
 @commands.has_role('Admin')
@@ -25,7 +37,7 @@ async def hopo(ctx):
 
 @bot.command(name='ask', help='Might provide a good answer')
 async def hopo(ctx):
-    prompt_msg = ctx.message
+    prompt_msg = ctx.message[5:]
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=generate_weirdness(prompt_msg),
@@ -37,7 +49,7 @@ async def hopo(ctx):
 
 @bot.command(name='ask-really', help='Provides a beautiful answer')
 async def hopo(ctx):
-    prompt_msg = ctx.message
+    prompt_msg = ctx.message[12:]
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=generate_haiku(prompt_msg),
@@ -62,5 +74,8 @@ def generate_haiku(prompt):
     return """Answer the following question with a haiku
     Question: {}?
     Answer:""".format(prompt)
+
+def generate_story(prompt):
+    return """Generate a very short story about {}""".format(prompt)
 
 bot.run(TOKEN)

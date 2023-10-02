@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 # Discord API key setup
 TOKEN = os.getenv('DISCORD_TOKEN')
-intents = discord.Intents.all()
+intents = discord.Intents(messages=True, guilds=True, message_content=True)
 client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix='!',intents=intents)
 
@@ -18,8 +18,9 @@ bot = commands.Bot(command_prefix='!',intents=intents)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @bot.command(name='story', help='Tells you a short story')
-async def story(ctx):
-    prompt_msg = ctx.message[7:]
+async def story(ctx, arg):
+    prompt_msg = arg
+    print(arg)
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=generate_story(prompt_msg),
@@ -36,8 +37,8 @@ async def hopo(ctx):
     await ctx.send('Ite oot')
 
 @bot.command(name='ask', help='Might provide a good answer')
-async def hopo(ctx):
-    prompt_msg = ctx.message[5:]
+async def hopo(ctx, arg):
+    prompt_msg = arg
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=generate_weirdness(prompt_msg),
@@ -48,8 +49,8 @@ async def hopo(ctx):
     await ctx.send(result)
 
 @bot.command(name='ask-really', help='Provides a beautiful answer')
-async def hopo(ctx):
-    prompt_msg = ctx.message[12:]
+async def hopo(ctx, arg):
+    prompt_msg = arg
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=generate_haiku(prompt_msg),

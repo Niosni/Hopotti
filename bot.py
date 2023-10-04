@@ -98,6 +98,8 @@ async def sync(interaction:discord.Interaction):
 
 @bot.event
 async def on_ready():
+    #bot.tree.clear_commands(guild=None)
+    #await bot.tree.sync(guild=discord.Object(id=GUILD))
     print('ready!')
 
 bot.run(TOKEN)

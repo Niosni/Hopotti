@@ -91,7 +91,7 @@ async def avatar(interaction:discord.Interaction,member:discord.Member):
 @bot.tree.command(name='sync', description='OWNER ONLY: Syncs the bot commands on the server',guild=discord.Object(id=GUILD))
 async def sync(interaction:discord.Interaction):
     print(interaction.user.id)
-    if interaction.user.id == GUILD_ADMIN_ID:
+    if int(interaction.user.id) == int(GUILD_ADMIN_ID):
         await bot.tree.sync(guild=discord.Object(id=GUILD))
         await interaction.response.send_message('Command tree synced.')
     else:

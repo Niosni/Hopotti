@@ -5,78 +5,90 @@ import openai
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from prompt_generators import *
 
 
 load_dotenv()
 # Discord API key setup
 TOKEN = os.getenv('DISCORD_TOKEN')
+GUILD = os.getenv('DISCORD_GUILD')
+GUILD_ADMIN_ID = os.getenv('GUILD_ADMIN_ID')
 intents = discord.Intents(messages=True, guilds=True, message_content=True)
 client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix='!',intents=intents)
+tree = discord.app_commands.CommandTree(client)
+
+# Limits the OpenAI API usage. 
+MAX_TOKENS = 100
 
 # OpenAI API key setup
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-@bot.command(name='story', help='Tells you a short story')
-async def story(ctx, arg):
-    prompt_msg = arg
-    print(arg)
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=generate_story(prompt_msg),
-        temperature=1.1,
-        max_tokens=50
-    )
-    result = response.choices[0].text
-    await ctx.send(result)
-
-
-@bot.command(name='hopo', help='I dare you to try')
+@bot.command(name='hopo', help='I dare you to try',guild=discord.Object(id=GUILD))
 @commands.has_role('Admin')
 async def hopo(ctx):
-    await ctx.send('Ite oot')
+    await ctx.send('Goofy')
 
-@bot.command(name='ask', help='Might provide a good answer')
-async def hopo(ctx, arg):
-    prompt_msg = arg
+@bot.tree.command(name='askai', description="Ask a question from an AI",guild=discord.Object(id=GUILD))
+async def askAI(interaction:discord.Interaction, arg:str):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt=generate_weirdness(prompt_msg),
-        temperature=1.1,
-        max_tokens=50
+        prompt=arg,
+        max_tokens=MAX_TOKENS
     )
     result = response.choices[0].text
-    await ctx.send(result)
+    message = f'> {arg}\n{result}'
+    await interaction.response.send_message(message)
 
-@bot.command(name='ask-really', help='Provides a beautiful answer')
-async def hopo(ctx, arg):
-    prompt_msg = arg
+@bot.tree.command(name="askweird",description="There's something going on",guild=discord.Object(id=GUILD))
+async def askweird(interaction:discord.Interaction, arg:str):
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt=generate_haiku(prompt_msg),
-        temperature=1.1,
-        max_tokens=50
+        prompt=generate_weirdness(arg),
+        max_tokens=MAX_TOKENS
     )
     result = response.choices[0].text
-    await ctx.send(result)
+    message = f'> {arg}\n{result}'
+    await interaction.response.send_message(message)
 
-def generate_weirdness(prompt):
-    return """Answer the following question with just a weird answer like the following:
-    Question: What is 2+2?
-    Answer: Not over 10
-    Question: What is the capital of Finland?
-    Answer: Turku, or some other finnish city.
-    Question: What is water?
-    Answer: It's a combination of some stuff. Not dry.
-    Question: {}?
-    Answer:""".format(prompt)
+@bot.tree.command(name="storytime",description="Generate a haiku from prompt",guild=discord.Object(id=GUILD))
+async def storytime(interaction:discord.Interaction, arg:str):
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=generate_story(arg),
+        max_tokens=MAX_TOKENS
+    )
+    result = response.choices[0].text
+    message = f'> {arg}\n{result}'
+    await interaction.response.send_message(message)
 
-def generate_haiku(prompt):
-    return """Answer the following question with a haiku
-    Question: {}?
-    Answer:""".format(prompt)
+@bot.tree.command(name="howitsmade",description="How it's made",guild=discord.Object(id=GUILD))
+async def howitsmade(interaction:discord.Interaction, arg:str):
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=generate_howitsmade(arg),
+        max_tokens=MAX_TOKENS
+    )
+    result = response.choices[0].text
+    message = f'> {arg}\n{result}'
+    await interaction.response.send_message(message)
 
-def generate_story(prompt):
-    return """Generate a very short story about {}""".format(prompt)
+@bot.tree.command(name="avatar",description="Get user avatar",guild=discord.Object(id=GUILD))
+async def avatar(interaction:discord.Interaction,member:discord.Member):
+    await interaction.response.send_message(member.display_avatar)
+
+@bot.tree.command(name='sync', description='OWNER ONLY: Syncs the bot commands on the server',guild=discord.Object(id=GUILD))
+async def sync(interaction:discord.Interaction):
+    if interaction.user.id == GUILD_ADMIN_ID:
+        await bot.tree.sync(guild=discord.Object(id=GUILD))
+        await interaction.response.send_message('Command tree synced.')
+    else:
+        await interaction.response.send_message('You must be the owner to use this command!')
+
+@bot.event
+async def on_ready():
+    #bot.tree.clear_commands(guild=None)
+    #await bot.tree.sync(guild=discord.Object(id=GUILD))
+    print('ready!')
 
 bot.run(TOKEN)

@@ -19,9 +19,6 @@ All the commands takes arguments which gets passed on as a prompt to the languag
 ## Example queries for höpötti-bot:
 
 <picture>
- <img alt="!ask-really" src="https://github.com/Niosni/hopotti/blob/master/images/haiku.png">
+ <img alt="Sample of the bot commands working" src="https://github.com/Niosni/hopotti/blob/master/images/sample_queries.png">
 </picture>
 
-<picture>
- <img alt="!ask" src="https://github.com/Niosni/hopotti/blob/master/images/weird.png">
-</picture>

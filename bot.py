@@ -51,11 +51,22 @@ async def askweird(interaction:discord.Interaction, arg:str):
     message = f'> {arg}\n{result}'
     await interaction.response.send_message(message)
 
-@bot.tree.command(name="storytime",description="Generate a haiku from prompt",guild=discord.Object(id=GUILD))
+@bot.tree.command(name="storytime",description="Generate a story from prompt",guild=discord.Object(id=GUILD))
 async def storytime(interaction:discord.Interaction, arg:str):
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=generate_story(arg),
+        max_tokens=MAX_TOKENS
+    )
+    result = response.choices[0].text
+    message = f'> {arg}\n{result}'
+    await interaction.response.send_message(message)
+
+@bot.tree.command(name="haiku",description="Generate a haiku from prompt",guild=discord.Object(id=GUILD))
+async def haiku(interaction:discord.Interaction, arg:str):
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=generate_haiku(arg),
         max_tokens=MAX_TOKENS
     )
     result = response.choices[0].text
@@ -87,8 +98,6 @@ async def sync(interaction:discord.Interaction):
 
 @bot.event
 async def on_ready():
-    #bot.tree.clear_commands(guild=None)
-    #await bot.tree.sync(guild=discord.Object(id=GUILD))
     print('ready!')
 
 bot.run(TOKEN)

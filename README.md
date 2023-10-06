@@ -1,4 +1,4 @@
-# Höpötti-botti
+# Höpötti-botti, a Discord bot with OpenAI API interactions.
 ***This is a fun project for a discord server with friends! :)***
 
 ## A discord bot that uses OpenAI's GPT-3 model "text-davinci-003" to answer questions.
